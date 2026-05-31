@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Vega Library",
-        "description": "Enter your library's Vega portal URL and your card credentials. The portal URL looks like https://yourlibrary.na4.iiivega.com/portal — find it by visiting your library's online catalog.",
+        "description": "Enter your library's Vega portal URL (e.g. your library's online catalog address ending in iiivega.com), your library card number, and your PIN.",
         "data": {
           "portal_url": "Portal URL",
           "barcode": "Library Card Number",
