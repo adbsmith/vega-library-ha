@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Vega Library",
+        "description": "Enter your library's Vega portal URL and your card credentials. The portal URL looks like https://yourlibrary.na4.iiivega.com/portal — find it by visiting your library's online catalog.",
+        "data": {
+          "portal_url": "Portal URL",
+          "barcode": "Library Card Number",
+          "pin": "PIN"
+        }
+      }
+    },
+    "error": {
+      "invalid_portal_url": "Not a valid Vega portal URL. It should look like https://yourlibrary.na4.iiivega.com/portal",
+      "invalid_auth": "Invalid library card number or PIN.",
+      "api_error": "The library portal returned an unexpected error. Check the logs.",
+      "unknown": "An unexpected error occurred. Check the Home Assistant logs."
+    },
+    "abort": {
+      "already_configured": "This library card is already configured."
+    }
+  }
+}

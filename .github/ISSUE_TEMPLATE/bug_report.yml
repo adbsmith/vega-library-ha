@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a problem with the Vega Library integration
+labels: ["bug"]
+body:
+  - type: input
+    id: library
+    attributes:
+      label: Library portal URL
+      description: "Your library's Vega portal URL (redact the library name if preferred)"
+      placeholder: "https://yourlibrary.na4.iiivega.com/portal"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: "Enable debug logging (see README) and paste the relevant lines here."
+      render: text
