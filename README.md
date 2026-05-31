@@ -4,7 +4,7 @@
 [![GitHub Release](https://img.shields.io/github/release/adbsmith/vega-library-ha.svg)](https://github.com/adbsmith/vega-library-ha/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A Home Assistant custom integration for libraries using the **Innovative Interfaces Vega Discover** platform (iiivega.com). Track your checkouts, holds, fines, and card expiry — and automate reminders — directly from Home Assistant.
+A Home Assistant custom integration for libraries using the [**Innovative Interfaces Vega Discover**](https://iii.com) platform. Track your checkouts, holds, fines, and card expiry — and automate reminders — directly from Home Assistant.
 
 > **Is your library on Vega?** Check your library's online catalog. If the URL contains `.iiivega.com`, this integration works for you.
 
