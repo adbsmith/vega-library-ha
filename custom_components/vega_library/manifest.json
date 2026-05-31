@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "config_flow": true,
   "documentation": "https://github.com/adbsmith/vega-library-ha",
+  "issue_tracker": "https://github.com/adbsmith/vega-library-ha/issues",
   "requirements": ["aiohttp>=3.9.0"],
   "codeowners": ["@adbsmith"],
-  "iot_class": "cloud_polling",
-  "homeassistant": "2024.1.0"
+  "iot_class": "cloud_polling"
 }

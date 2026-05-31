@@ -12,7 +12,7 @@
       }
     },
     "error": {
-      "invalid_portal_url": "Not a valid Vega portal URL. It should look like https://yourlibrary.na4.iiivega.com/portal",
+      "invalid_portal_url": "Not a valid Vega portal URL. Check that you copied the correct URL from your library's online catalog.",
       "invalid_auth": "Invalid library card number or PIN.",
       "api_error": "The library portal returned an unexpected error. Check the logs.",
       "unknown": "An unexpected error occurred. Check the Home Assistant logs."
