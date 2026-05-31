@@ -24,12 +24,12 @@ class LibraryDataCoordinator(DataUpdateCoordinator[PatronAccount]):
             update_interval=timedelta(minutes=DEFAULT_SCAN_INTERVAL),
         )
         self._lib_config = lib_config
+        self._barcode    = barcode
+        self._pin        = pin
 
     @property
     def lib_config(self) -> LibraryConfig:
         return self._lib_config
-        self._barcode    = barcode
-        self._pin        = pin
 
     async def _async_update_data(self) -> PatronAccount:
         try:
