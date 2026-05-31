@@ -28,9 +28,11 @@ A Home Assistant custom integration for libraries using the **Innovative Interfa
 
 ### Via HACS (recommended)
 
-1. Open HACS in Home Assistant
-2. Search for **Vega Library**
-3. Click **Download**
+> **Note:** Vega Library is not yet in the HACS default store — the submission is pending review. Add it as a custom repository in the meantime:
+
+1. In HACS, click the ⋮ menu (top right) → **Custom repositories**
+2. Enter `https://github.com/adbsmith/vega-library-ha` and select **Integration**
+3. Click **Add**, then find **Vega Library** in HACS and click **Download**
 4. Restart Home Assistant
 
 ### Manual
