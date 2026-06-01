@@ -5,6 +5,11 @@ import logging
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.helpers.selector import (
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
@@ -17,7 +22,9 @@ _LOGGER = logging.getLogger(__name__)
 STEP_SCHEMA = vol.Schema({
     vol.Required(CONF_PORTAL_URL): str,
     vol.Required(CONF_BARCODE):    str,
-    vol.Required(CONF_PIN):        str,
+    vol.Required(CONF_PIN):        TextSelector(
+        TextSelectorConfig(type=TextSelectorType.PASSWORD)
+    ),
 })
 
 
