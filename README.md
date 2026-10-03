@@ -1,6 +1,6 @@
 # Vega Library for Home Assistant
 
-[![HACS Badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+[![HACS Badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)]([https://github.com/hacs/integration](https://my.home-assistant.io/redirect/hacs_repository/?owner=adbsmith&repository=vega-library-ha&category=integration))
 [![GitHub Release](https://img.shields.io/github/release/adbsmith/vega-library-ha.svg)](https://github.com/adbsmith/vega-library-ha/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -24,16 +24,13 @@ A Home Assistant custom integration for libraries using the [**Innovative Interf
 
 ---
 
-## Installation
-
-### Via HACS (recommended)
-
-> **Note:** Vega Library is not yet in the HACS default store — the submission is pending review. Add it as a custom repository in the meantime:
-
-1. In HACS, click the ⋮ menu (top right) → **Custom repositories**
-2. Enter `https://github.com/adbsmith/vega-library-ha` and select **Integration**
-3. Click **Add**, then find **Vega Library** in HACS and click **Download**
-4. Restart Home Assistant
+### Via [HACS](https://hacs.xyz) (recommended)
+ 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=adbsmith&repository=vega-library-ha&category=integration)
+ 
+1. Open **HACS** in Home Assistant and search for **Vega Library**
+2. Select it, click **Download** in the bottom-right corner, and confirm
+3. Restart Home Assistant
 
 ### Manual
 
