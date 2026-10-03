@@ -1,6 +1,6 @@
 # Vega Library for Home Assistant
 
-[![HACS Badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)]([https://github.com/hacs/integration](https://my.home-assistant.io/redirect/hacs_repository/?owner=adbsmith&repository=vega-library-ha&category=integration))
+[![HACS Badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=adbsmith&repository=vega-library-ha&category=integration)
 [![GitHub Release](https://img.shields.io/github/release/adbsmith/vega-library-ha.svg)](https://github.com/adbsmith/vega-library-ha/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
