@@ -150,7 +150,9 @@ class LibraryCheckout:
     def from_api(cls, data: dict) -> "LibraryCheckout":
         resource      = data.get("resource") or {}
         renewal_count = int(data.get("renewalCount") or 0)
-        renewal_limit = int(data.get("renewalLimit") or 999)
+        limit_raw     = data.get("renewalLimit")
+        # 0 means "no renewals allowed"; only fall back when the field is missing
+        renewal_limit = 999 if limit_raw is None else int(limit_raw)
         return cls(
             id=str(data.get("id") or ""),
             title=resource.get("title") or data.get("title") or "Unknown",
