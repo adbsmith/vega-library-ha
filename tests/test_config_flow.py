@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from custom_components.vega_library.const import DOMAIN
 from custom_components.vega_library.vega_client import LibraryConfig
 
-
+from .common import BARCODE, PIN, PORTAL_URL, FakeVega
 
 async def start_flow(hass: HomeAssistant) -> str:
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
