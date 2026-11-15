@@ -118,6 +118,17 @@ class VegaAPIError(Exception):
 
 # ── Data models ───────────────────────────────────────────────────────────────
 
+def _parse_dt(val: Any) -> datetime | None:
+    """Parse an API timestamp. Always returns an aware datetime (naive input is
+    assumed to be UTC) so values can be compared and sorted safely."""
+    if not val:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(val).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
 @dataclass
 class LibraryCheckout:
     id: str
