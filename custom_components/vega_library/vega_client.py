@@ -19,6 +19,7 @@ Usage:
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
@@ -235,7 +236,7 @@ class PatronAccount:
     checkouts: list[LibraryCheckout]  = field(default_factory=list)
     holds: list[LibraryHold]          = field(default_factory=list)
     fines: list[LibraryFine]          = field(default_factory=list)
-    fines_total: float                = 0.0
+    fines_total: float | None         = 0.0   # None = could not be fetched
     card_expiration_date: date | None = None
 
     @property
@@ -281,20 +282,30 @@ class _TokenCache:
 class VegaClient:
     """Async Keycloak + Vega API client, works with any Vega library."""
 
-    def __init__(self, config: LibraryConfig, barcode: str, pin: str) -> None:
+    def __init__(
+        self, config: LibraryConfig, barcode: str, pin: str,
+        session: aiohttp.ClientSession | None = None,
+    ) -> None:
         self._config  = config
         self._barcode = barcode
         self._pin     = pin
         self._cache: _TokenCache | None = None
-        self._session: aiohttp.ClientSession | None = None
+        # Pass a session (e.g. Home Assistant's shared one) to keep one client alive
+        # between polls. Without one, use ``async with VegaClient(...)``.
+        self._session: aiohttp.ClientSession | None = session
+        self._owns_session = session is None
+        self._token_lock   = asyncio.Lock()
+        self._warned: set[str] = set()
 
     async def __aenter__(self) -> "VegaClient":
-        self._session = aiohttp.ClientSession(timeout=DEFAULT_TIMEOUT)
+        if self._session is None:
+            self._session = aiohttp.ClientSession()
         return self
 
     async def __aexit__(self, *_: Any) -> None:
-        if self._session:
+        if self._session and self._owns_session:
             await self._session.close()
+            self._session = None
 
     def _headers(self, api_version: str = "1", token: str | None = None) -> dict[str, str]:
         h: dict[str, str] = {
@@ -325,16 +336,17 @@ class VegaClient:
         form.add_field("username",   self._barcode)
         form.add_field("password",   self._pin)
         async with self._session.post(
-            self._config.keycloak_token_url, data=form,
+            self._config.keycloak_token_url, data=form, timeout=DEFAULT_TIMEOUT,
             headers={"Origin": self._config.portal_origin,
                      "Referer": self._config.portal_origin + "/",
                      "Accept": "application/json"},
         ) as resp:
-            body = await resp.json(content_type=None)
             if resp.status == 401:
                 raise VegaAuthError("Invalid library card number or PIN")
             if resp.status != 200:
-                raise VegaAPIError(f"Keycloak HTTP {resp.status}: {body}")
+                detail = (await resp.text())[:200]
+                raise VegaAPIError(f"Keycloak HTTP {resp.status}: {detail}")
+            body = await resp.json(content_type=None)
             now = time.time()
             self._cache = _TokenCache(
                 access_token=body["access_token"],
@@ -349,7 +361,9 @@ class VegaClient:
         form.add_field("grant_type",    "refresh_token")
         form.add_field("client_id",     KEYCLOAK_CLIENT_ID)
         form.add_field("refresh_token", self._cache.refresh_token)
-        async with self._session.post(self._config.keycloak_token_url, data=form) as resp:
+        async with self._session.post(
+            self._config.keycloak_token_url, data=form, timeout=DEFAULT_TIMEOUT
+        ) as resp:
             if resp.status != 200:
                 self._cache = None
                 await self.authenticate()
@@ -364,14 +378,29 @@ class VegaClient:
             )
 
     async def _token(self) -> str:
-        if self._cache is None:
-            await self.authenticate()
-        elif not self._cache.access_valid():
-            if self._cache.refresh_valid():
-                await self._refresh()
-            else:
+        # The lock stops concurrent requests from each starting their own login.
+        async with self._token_lock:
+            if self._cache is None:
                 await self.authenticate()
-        return self._cache.access_token  # type: ignore[union-attr]
+            elif not self._cache.access_valid():
+                if self._cache.refresh_valid():
+                    await self._refresh()
+                else:
+                    await self.authenticate()
+            return self._cache.access_token  # type: ignore[union-attr]
+
+    def _invalidate(self, token: str) -> None:
+        """Drop a rejected token, unless another request has already replaced it."""
+        if self._cache is not None and self._cache.access_token == token:
+            self._cache = None
+
+    def _log_failure(self, what: str, err: Exception) -> None:
+        """Warn the first time an optional endpoint fails, then stay at debug."""
+        level = logging.DEBUG if what in self._warned else logging.WARNING
+        self._warned.add(what)
+        # str(err), never repr(): aiohttp's repr includes the Authorization header.
+        _LOGGER.log(level, "Could not fetch %s from %s (%s: %s)",
+                    what, self._config.library_domain, type(err).__name__, err)
 
     # ── HTTP helpers ──────────────────────────────────────────────────────────
 
@@ -381,11 +410,15 @@ class VegaClient:
         tok = await self._token()
         h   = self._headers(api_version, tok)
         url = self._config.api_base + path
-        async with self._session.get(url, headers=h, params=params) as resp:
+        async with self._session.get(
+            url, headers=h, params=params, timeout=DEFAULT_TIMEOUT
+        ) as resp:
             if resp.status == 401:
-                self._cache = None
+                self._invalidate(tok)
                 h["Authorization"] = f"Bearer {await self._token()}"
-                async with self._session.get(url, headers=h, params=params) as r2:
+                async with self._session.get(
+                    url, headers=h, params=params, timeout=DEFAULT_TIMEOUT
+                ) as r2:
                     r2.raise_for_status()
                     return await r2.json(content_type=None)
             resp.raise_for_status()
@@ -396,7 +429,8 @@ class VegaClient:
         tok = await self._token()
         h   = {**self._headers("1", tok), "content-type": "application/json"}
         async with self._session.post(
-            self._config.api_base + path, json=json_body or {}, headers=h
+            self._config.api_base + path, json=json_body or {}, headers=h,
+            timeout=DEFAULT_TIMEOUT,
         ) as resp:
             body = await resp.json(content_type=None) if resp.content_length else {}
             return resp.status, body
@@ -404,7 +438,9 @@ class VegaClient:
     async def _delete(self, path: str) -> int:
         assert self._session is not None
         h = self._headers("1", await self._token())
-        async with self._session.delete(self._config.api_base + path, headers=h) as resp:
+        async with self._session.delete(
+            self._config.api_base + path, headers=h, timeout=DEFAULT_TIMEOUT
+        ) as resp:
             return resp.status
 
     # ── Patron data ───────────────────────────────────────────────────────────
@@ -423,37 +459,49 @@ class VegaClient:
         )
         return [LibraryHold.from_api(i) for i in items]
 
-    async def get_fines(self) -> tuple[float, list[LibraryFine]]:
+    async def get_fines(self) -> tuple[float | None, list[LibraryFine]]:
+        """Return (total, fines). The total is None when it could not be fetched,
+        so a failed request is never reported as a zero balance."""
         try:
             raw   = await self._get(_ENDPOINT_FINES)
             total = float(raw.get("totalOutstandingAmount") or 0.0)
             items = [LibraryFine.from_api(f) for f in (raw.get("data") or [])]
-            return total, items
-        except Exception:
-            _LOGGER.debug("Fines fetch failed", exc_info=True)
-            return 0.0, []
+        except VegaAuthError:
+            raise
+        except Exception as err:  # optional endpoint: degrade instead of failing the poll
+            self._log_failure("fines", err)
+            return None, []
+        self._warned.discard("fines")
+        return total, items
 
     async def get_patron_profile(self) -> dict:
         try:
-            return await self._get(
+            profile = await self._get(
                 _ENDPOINT_PATRON,
                 params={"listsPrefetch": "10", "showcasesPrefetch": "10"},
                 api_version="2",
             )
-        except Exception:
-            _LOGGER.debug("Patron profile fetch failed", exc_info=True)
+        except VegaAuthError:
+            raise
+        except Exception as err:  # optional endpoint: degrade instead of failing the poll
+            self._log_failure("patron profile", err)
             return {}
+        self._warned.discard("patron profile")
+        return profile
 
     async def get_account(self) -> PatronAccount:
-        checkouts             = await self.get_checkouts()
-        holds                 = await self.get_holds()
-        fines_total, fines    = await self.get_fines()
-        profile               = await self.get_patron_profile()
+        await self._token()  # log in once, so the requests below share the token
+        checkouts, holds, (fines_total, fines), profile = await asyncio.gather(
+            self.get_checkouts(),
+            self.get_holds(),
+            self.get_fines(),
+            self.get_patron_profile(),
+        )
 
         expiry_date: date | None = None
         if exp_str := profile.get("expirationDate"):
             try:
-                expiry_date = date.fromisoformat(exp_str)
+                expiry_date = date.fromisoformat(str(exp_str)[:10])
             except ValueError:
                 pass
 
