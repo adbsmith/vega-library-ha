@@ -27,7 +27,6 @@ async def test_server_error_is_retried(hass: HomeAssistant, fake_vega: FakeVega)
     assert sensor(hass, entry, "checkouts").state == "3"
 
 
-@pending("section 7, concurrent requests")
 async def test_requests_run_concurrently(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     entry = new_entry(hass)
     await setup(hass, entry)
@@ -37,7 +36,6 @@ async def test_requests_run_concurrently(hass: HomeAssistant, fake_vega: FakeVeg
     assert fake_vega.max_in_flight == 4
 
 
-@pending("section 8, one long-lived client")
 async def test_token_is_reused_between_polls(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     entry = new_entry(hass)
     await setup(hass, entry)
@@ -46,7 +44,6 @@ async def test_token_is_reused_between_polls(hass: HomeAssistant, fake_vega: Fak
     assert fake_vega.grants == ["password"]  # one login for three polls
 
 
-@pending("section 8, one long-lived client")
 async def test_expired_token_is_refreshed(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     entry = new_entry(hass)
     await setup(hass, entry)
@@ -63,7 +60,6 @@ async def test_expired_token_is_refreshed(hass: HomeAssistant, fake_vega: FakeVe
     assert sensor(hass, entry, "checkouts").state == "3"
 
 
-@pending("sections 7 and 8, shared login after a rejected token")
 async def test_rejected_token_causes_one_relogin(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     """All four concurrent requests get a 401; they must share a single new login."""
     entry = new_entry(hass)
