@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of an existing release to (re)attach the zip to, e.g. v1.0.4
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+  INTEGRATION: custom_components/vega_library
+  ASSET: vega_library.zip
+
+jobs:
+  zip:
+    name: Attach vega_library.zip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Make the packaged version match the tag
+        run: |
+          version="${TAG#v}"
+          current="$(jq -r .version "$INTEGRATION/manifest.json")"
+          if [ "$current" != "$version" ]; then
+            echo "::warning::manifest.json says $current but the release is $TAG. Packaging it as $version."
+            jq --arg version "$version" '.version = $version' "$INTEGRATION/manifest.json" > "$RUNNER_TEMP/manifest.json"
+            mv "$RUNNER_TEMP/manifest.json" "$INTEGRATION/manifest.json"
+          fi
+
+      - name: Build the zip
+        run: |
+          cd "$INTEGRATION"
+          zip -r -X "$RUNNER_TEMP/$ASSET" .
+          unzip -l "$RUNNER_TEMP/$ASSET" manifest.json
+
+      - name: Attach it to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" --json assets --jq '.assets[].name' | grep -qx "$ASSET"; then
+            echo "::notice::$ASSET is already attached to $TAG, leaving it as it is."
+          else
+            gh release upload "$TAG" "$RUNNER_TEMP/$ASSET"
+          fi
