@@ -74,7 +74,6 @@ async def test_rejected_token_causes_one_relogin(hass: HomeAssistant, fake_vega:
     assert sensor(hass, entry, "checkouts").state == "3"
 
 
-@pending("section 3, reauth")
 async def test_changed_pin_starts_reauth_and_stops_polling(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     fake_vega.expires_in = fake_vega.refresh_expires_in = 1  # every poll has to log in
     entry = new_entry(hass)
@@ -102,7 +101,6 @@ async def test_changed_pin_starts_reauth_and_stops_polling(hass: HomeAssistant, 
     assert sensor(hass, entry, "checkouts").state == "3"
 
 
-@pending("section 3, reauth")
 async def test_wrong_pin_at_startup_asks_for_reauth(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     fake_vega.valid_pin = "9999"
     entry = new_entry(hass)
