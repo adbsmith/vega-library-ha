@@ -22,7 +22,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from urllib.parse import urlparse
 
@@ -146,15 +146,6 @@ class LibraryCheckout:
     def renewals_remaining(self) -> int:
         return max(0, self.renewal_limit - self.times_renewed)
 
-    @staticmethod
-    def _parse_dt(val: Any) -> datetime | None:
-        if not val:
-            return None
-        try:
-            return datetime.fromisoformat(str(val).replace("Z", "+00:00"))
-        except ValueError:
-            return None
-
     @classmethod
     def from_api(cls, data: dict) -> "LibraryCheckout":
         resource      = data.get("resource") or {}
@@ -163,8 +154,8 @@ class LibraryCheckout:
         return cls(
             id=str(data.get("id") or ""),
             title=resource.get("title") or data.get("title") or "Unknown",
-            due_date=cls._parse_dt(data.get("dueDate")),
-            checkout_date=cls._parse_dt(data.get("checkOutDate")),
+            due_date=_parse_dt(data.get("dueDate")),
+            checkout_date=_parse_dt(data.get("checkOutDate")),
             renewable=renewal_count < renewal_limit,
             times_renewed=renewal_count,
             renewal_limit=renewal_limit,
@@ -194,15 +185,6 @@ class LibraryHold:
             "HELD", "READYFORPICKUP",
         )
 
-    @staticmethod
-    def _parse_dt(val: Any) -> datetime | None:
-        if not val:
-            return None
-        try:
-            return datetime.fromisoformat(str(val).replace("Z", "+00:00"))
-        except ValueError:
-            return None
-
     @classmethod
     def from_api(cls, data: dict) -> "LibraryHold":
         resource = data.get("resource") or {}
@@ -212,8 +194,8 @@ class LibraryHold:
             status=str(data.get("status") or "UNKNOWN").upper(),
             queue_position=data.get("queuePosition") or data.get("position"),
             pickup_location=str(data.get("pickupLocation") or data.get("pickupBranch") or ""),
-            expiry_date=cls._parse_dt(data.get("expiryDate") or data.get("expireDate")),
-            placed_date=cls._parse_dt(data.get("placedDate") or data.get("createDate")),
+            expiry_date=_parse_dt(data.get("expiryDate") or data.get("expireDate")),
+            placed_date=_parse_dt(data.get("placedDate") or data.get("createDate")),
             format=resource.get("materialType") or "",
             cover_url=(resource.get("coverUrl") or {}).get("medium"),
             raw=data,
