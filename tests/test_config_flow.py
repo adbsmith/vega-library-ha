@@ -65,7 +65,6 @@ async def test_url_without_scheme_is_accepted(hass: HomeAssistant, fake_vega: Fa
     assert result["data"]["portal_url"] == PORTAL_URL
 
 
-@pending("section 10, HTTP status checked before the login response is parsed")
 async def test_auth_server_error_page(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     """A 502 HTML page from the login server is an API error, not a crash."""
     fake_vega.fail = {"token": 502}
