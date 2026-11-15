@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 
 from custom_components.vega_library.const import DOMAIN
 
-
+from .common import FakeVega, new_entry, poll, sensor, setup, skip_ahead
 
 async def test_server_error_is_retried(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     """A failing library server makes the sensors unavailable until the next good poll."""
