@@ -58,7 +58,6 @@ async def test_due_date_without_utc_offset(hass: HomeAssistant, fake_vega: FakeV
     assert errors_in(caplog) == []
 
 
-@pending("section 5, renewalLimit of 0")
 async def test_renewal_limit_of_zero(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     """renewalLimit: 0 means "cannot be renewed", not "999 renewals left"."""
     fake_vega.checkouts = [
@@ -75,7 +74,6 @@ async def test_renewal_limit_of_zero(hass: HomeAssistant, fake_vega: FakeVega) -
     assert (items["co-0003"]["renewable"], items["co-0003"]["renewals_remaining"]) == (True, 999)
 
 
-@pending("section 6, item lists kept out of the recorder")
 async def test_item_lists_stay_out_of_the_recorder(
     recorder_mock, hass: HomeAssistant, fake_vega: FakeVega, caplog
 ) -> None:

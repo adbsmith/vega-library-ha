@@ -73,6 +73,7 @@ class _Base(CoordinatorEntity[LibraryDataCoordinator], SensorEntity):
 # ── Checkouts ─────────────────────────────────────────────────────────────────
 
 class CheckoutsSensor(_Base):
+    _unrecorded_attributes = frozenset({"items"})
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "items"
 
@@ -113,6 +114,7 @@ class CheckoutsSensor(_Base):
 # ── Holds ─────────────────────────────────────────────────────────────────────
 
 class HoldsSensor(_Base):
+    _unrecorded_attributes = frozenset({"holds"})
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "items"
 
@@ -149,6 +151,7 @@ class HoldsSensor(_Base):
 # ── Holds ready ───────────────────────────────────────────────────────────────
 
 class HoldsReadySensor(_Base):
+    _unrecorded_attributes = frozenset({"ready_items"})
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "items"
 
@@ -179,6 +182,7 @@ class HoldsReadySensor(_Base):
 # ── Fines ─────────────────────────────────────────────────────────────────────
 
 class FinesSensor(_Base):
+    _unrecorded_attributes = frozenset({"fines"})
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "USD"
     _attr_suggested_display_precision = 2
@@ -213,6 +217,7 @@ class FinesSensor(_Base):
 # ── Overdue ───────────────────────────────────────────────────────────────────
 
 class OverdueSensor(_Base):
+    _unrecorded_attributes = frozenset({"overdue_items"})
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "items"
 
@@ -245,6 +250,7 @@ class OverdueSensor(_Base):
 # ── Due soon ──────────────────────────────────────────────────────────────────
 
 class DueSoonSensor(_Base):
+    _unrecorded_attributes = frozenset({"due_soon_items"})
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "items"
 
