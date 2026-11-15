@@ -28,21 +28,6 @@ PIN = "1234"
 NOW = datetime.now(timezone.utc)
 
 
-def pending(change: str) -> pytest.MarkDecorator:
-    """Mark a test for a fix that is not on main yet.
-
-    Until the fix is applied the test is reported as "xfailed" and does not fail the
-    run. When you apply the fix, delete the @pending line above the test so that it
-    counts from then on. If you forget, the run fails with XPASS(strict), which only
-    means "this passes now, remove the marker".
-    """
-    return pytest.mark.xfail(
-        strict=True,
-        reason=f"Not on main yet: {change}. If this is reported as XPASS, the fix is in "
-        "and the @pending line above the test can be deleted.",
-    )
-
-
 def iso(moment: datetime) -> str:
     return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
