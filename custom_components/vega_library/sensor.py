@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime
-from typing import Any
+from datetime import datetime, timezone
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
@@ -26,6 +25,8 @@ from .vega_client import PatronAccount
 
 _LOGGER = logging.getLogger(__name__)
 
+# Sorts checkouts that have no due date after everything else.
+_NO_DUE_DATE = datetime.max.replace(tzinfo=timezone.utc)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -88,7 +89,7 @@ class CheckoutsSensor(_Base):
             return {}
         sorted_items = sorted(
             self.account.checkouts,
-            key=lambda c: c.due_date or datetime.max.replace(tzinfo=None),
+            key=lambda c: c.due_date or _NO_DUE_DATE,
         )
         return {
             "items": [
