@@ -4,8 +4,10 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
+import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -40,8 +42,7 @@ class LibraryDataCoordinator(DataUpdateCoordinator[PatronAccount]):
         try:
             return await self._client.get_account()
         except VegaAuthError as err:
-            raise UpdateFailed(f"Library auth failed: {err}") from err
-        except VegaAPIError as err:
+            # Stops polling and prompts for a new PIN instead of retrying forever.
+            raise ConfigEntryAuthFailed(str(err)) from err
+        except (VegaAPIError, aiohttp.ClientError, TimeoutError) as err:
             raise UpdateFailed(f"Library API error: {err}") from err
-        except Exception as err:
-            raise UpdateFailed(f"Unexpected error: {err}") from err

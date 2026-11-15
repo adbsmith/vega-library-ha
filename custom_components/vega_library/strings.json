@@ -9,16 +9,25 @@
           "barcode": "Library Card Number",
           "pin": "PIN"
         }
+      },
+      "reauth_confirm": {
+        "title": "Library PIN no longer accepted",
+        "description": "The library rejected the saved PIN for {card}. Enter your current PIN.",
+        "data": {
+          "pin": "PIN"
+        }
       }
     },
     "error": {
       "invalid_portal_url": "Not a valid Vega portal URL. Check that you copied the correct URL from your library's online catalog.",
       "invalid_auth": "Invalid library card number or PIN.",
+      "cannot_connect": "Could not reach the library's servers. Check your connection and try again.",
       "api_error": "The library portal returned an unexpected error. Check the logs.",
       "unknown": "An unexpected error occurred. Check the Home Assistant logs."
     },
     "abort": {
-      "already_configured": "This library card is already configured."
+      "already_configured": "This library card is already configured.",
+      "reauth_successful": "PIN updated."
     }
   }
 }
