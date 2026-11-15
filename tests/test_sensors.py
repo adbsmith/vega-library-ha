@@ -87,7 +87,6 @@ async def test_item_lists_stay_out_of_the_recorder(
     assert len(sensor(hass, entry, "checkouts").attributes["items"]) == 120  # still there for templates
 
 
-@pending("section 4, failed fines request shows unknown")
 async def test_failed_fines_request_is_unknown_not_zero(hass: HomeAssistant, fake_vega: FakeVega) -> None:
     entry = new_entry(hass)
     await setup(hass, entry)
@@ -104,7 +103,6 @@ async def test_failed_fines_request_is_unknown_not_zero(hass: HomeAssistant, fak
     assert sensor(hass, entry, "fines").state == "4.5"
 
 
-@pending("sections 4 and 8, failed optional requests are logged once")
 async def test_failed_optional_requests_are_logged_once(
     hass: HomeAssistant, fake_vega: FakeVega, caplog
 ) -> None:
