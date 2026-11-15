@@ -4,8 +4,9 @@
   "codeowners": ["@adbsmith"],
   "config_flow": true,
   "documentation": "https://github.com/adbsmith/vega-library-ha",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/adbsmith/vega-library-ha/issues",
-  "requirements": ["aiohttp>=3.9.0"],
+  "requirements": [],
   "version": "1.0.3"
 }
