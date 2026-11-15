@@ -1,4 +1,7 @@
 {
   "name": "Vega Library",
+  "zip_release": true,
+  "filename": "vega_library.zip",
   "render_readme": true
+  "homeassistant": "2024.11.0"
 }
