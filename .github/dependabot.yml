@@ -1,0 +1,19 @@
+# https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+version: 2
+updates:
+  # Actions in .github/workflows. hacs/action@main and hassfest@master are
+  # branch refs, which Dependabot leaves alone; that's intended.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # requirements_test.txt. pytest-homeassistant pins an exact Home Assistant
+  # release, so each PR here answers "do the tests pass on the new HA?"
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
